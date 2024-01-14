@@ -203,26 +203,32 @@ public class Image2Map implements ModInitializer {
     }
 
     public static void giveToPlayer(PlayerEntity player, List<ItemStack> items, String input, int width, int height) {
-        if (items.size() == 1) {
-            player.giveItemStack(items.get(0));
-        } else {
-            var bundle = new ItemStack(Items.BUNDLE);
-            var list = new NbtList();
-
-            for (var item : items) {
-                list.add(item.writeNbt(new NbtCompound()));
+        if (CONFIG.useBundles) {
+            if (items.size() == 1) {
+                player.giveItemStack(items.get(0));
+            } else {
+                var bundle = new ItemStack(Items.BUNDLE);
+                var list = new NbtList();
+    
+                for (var item : items) {
+                    list.add(item.writeNbt(new NbtCompound()));
+                }
+                bundle.getOrCreateNbt().put("Items", list);
+                bundle.getOrCreateNbt().putBoolean("image2map:quick_place", true);
+                bundle.getOrCreateNbt().putInt("image2map:width", MathHelper.ceil(width / 128d));
+                bundle.getOrCreateNbt().putInt("image2map:height", MathHelper.ceil(height / 128d));
+    
+                var lore = new NbtList();
+                lore.add(NbtString.of(Text.Serializer.toJson(Text.literal(input))));
+                bundle.getOrCreateSubNbt("display").put("Lore", lore);
+                bundle.setCustomName(Text.literal("Maps").formatted(Formatting.GOLD));
+    
+                player.giveItemStack(bundle);
             }
-            bundle.getOrCreateNbt().put("Items", list);
-            bundle.getOrCreateNbt().putBoolean("image2map:quick_place", true);
-            bundle.getOrCreateNbt().putInt("image2map:width", MathHelper.ceil(width / 128d));
-            bundle.getOrCreateNbt().putInt("image2map:height", MathHelper.ceil(height / 128d));
-
-            var lore = new NbtList();
-            lore.add(NbtString.of(Text.Serializer.toJson(Text.literal(input))));
-            bundle.getOrCreateSubNbt("display").put("Lore", lore);
-            bundle.setCustomName(Text.literal("Maps").formatted(Formatting.GOLD));
-
-            player.giveItemStack(bundle);
+        } else {
+            for (ItemStack item : items) {
+                player.giveItemStack(item);
+            }
         }
     }
 

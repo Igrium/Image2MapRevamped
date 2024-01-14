@@ -18,6 +18,8 @@ public class Image2MapConfig {
 
   public int minPermLevel = 2;
 
+  public boolean useBundles = true;
+
 
   public static Image2MapConfig loadOrCreateConfig() {
     try {
