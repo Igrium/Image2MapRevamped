@@ -18,7 +18,12 @@ public class Image2MapConfig {
 
   public int minPermLevel = 2;
 
-  public boolean useBundles = true;
+  public boolean useBundles = false;
+
+  /**
+   * If true, players in survival mode must hold empty maps before they may create an image.
+   */
+  public boolean requireEmptyMap = true;
 
 
   public static Image2MapConfig loadOrCreateConfig() {

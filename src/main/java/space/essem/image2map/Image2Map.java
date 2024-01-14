@@ -174,6 +174,7 @@ public class Image2Map implements ModInitializer {
         getImage(input).orTimeout(60, TimeUnit.SECONDS).handleAsync((image, ex) -> {
             if (image == null || ex != null) {
                 source.sendFeedback(() -> Text.literal("That doesn't seem to be a valid image!"), false);
+                return null;
             }
 
             int width;
@@ -203,6 +204,24 @@ public class Image2Map implements ModInitializer {
     }
 
     public static void giveToPlayer(PlayerEntity player, List<ItemStack> items, String input, int width, int height) {
+        if (CONFIG.requireEmptyMap && !player.getAbilities().creativeMode) {
+            int slotId = player.getInventory().selectedSlot;
+            ItemStack stack = player.getInventory().getStack(slotId);
+
+            if (!stack.isOf(Items.MAP) || stack.getCount() < items.size()) {
+                String errorText = items.size() > 1 ? "Please hold " + items.size() + " maps." : "Please hold an empty map.";
+                player.sendMessage(Text.literal(errorText).formatted(Formatting.RED));
+                return;
+            }
+
+            int newCount = stack.getCount() - items.size();
+            if (newCount > 0) {
+                stack.setCount(newCount);
+            } else {
+                player.getInventory().setStack(slotId, ItemStack.EMPTY);
+            }
+        }
+
         if (CONFIG.useBundles) {
             if (items.size() == 1) {
                 player.giveItemStack(items.get(0));
